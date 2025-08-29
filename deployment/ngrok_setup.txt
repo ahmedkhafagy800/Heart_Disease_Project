@@ -1,0 +1,3 @@
+streamlit run ui/app.py
+ngrok http 8501
+# انسخ الرابط العام وقدّمه في README إذا لزم.
