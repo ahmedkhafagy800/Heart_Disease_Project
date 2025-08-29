@@ -11,89 +11,98 @@ Streamlit UI for interactive predictions.
 Clear, step‑by‑step commands to reproduce results locally.
 
 Project Structure
-data/: source dataset (heart_disease.csv).
 
-notebooks/: scripts/notebooks for preprocessing, PCA/selection, supervised training, and tuning.
+Heart_Disease_Project/
+├── data/
+│   └── heart_disease.csv
+├── notebooks/
+│   ├── 01_data_preprocessing.ipynb
+│   ├── 02_pca_analysis.ipynb
+│   ├── 03_feature_selection.ipynb
+│   ├── 04_supervised_learning.ipynb
+│   ├── 05_unsupervised_learning.ipynb
+│   └── 06_hyperparameter_tuning.ipynb
+├── models/
+│   └── final_model.pkl
+├── ui/
+│   └── app.py
+├── deployment/
+│   └── ngrok_setup.txt
+├── results/
+│   └── evaluation_metrics.txt
+├── README.md
+├── requirements.txt
+└── .gitignore
 
-results/: intermediate artifacts (e.g., selected_feature_indices.npy, tuned_auc_scores.csv).
 
-models/: final_model.pkl (fitted pipeline) and tuned_*.joblib artifacts.
-
-ui/: Streamlit app (app.py).
-
-scripts/: utility scripts (e.g., refit_final_pipeline.py for emergency refit).
-
-README.md, requirements.txt, .gitignore.
+Optional extras (if present): tuned_*.joblib under models/, intermediate artifacts under results/ (e.g., selected_feature_indices.npy, tuned_auc_scores.csv), and utility scripts (e.g., scripts/refit_final_pipeline.py).
 
 Getting Started
 Prerequisites
-Python 3.10+ (recommend a fresh virtual environment).
+Python 3.10+ (recommended: fresh virtual environment).
 
 Install dependencies:
 
+text
 pip install -r requirements.txt
-
 Reproducible Pipeline Build
 From the project root, run:
 
+text
 python -m notebooks.01_data_preprocessing
-
 python -m notebooks.03_feature_selection
-
 python -m notebooks.06_hyperparameter_tuning
-
 python -m models.build_final_pipeline
-
 The last step saves a fitted pipeline to models/final_model.pkl and prints the selected best model.
 
 Run the App
+text
 streamlit run ui/app.py
-
-Open the local URL shown in the terminal and use the form to submit inputs and obtain a predicted class and probability.
+Open the local URL shown in the terminal and submit inputs to obtain predicted class and probability.
 
 Usage Notes
-The app expects the following inputs: age, trestbps, chol, thalach, oldpeak, sex, cp, fbs, restecg, exang, slope, ca, thal.
+Expected inputs: age, trestbps, chol, thalach, oldpeak, sex, cp, fbs, restecg, exang, slope, ca, thal.
 
-Predicted class is determined by a 0.5 probability threshold; adjust logic if a different operating point is desired.
+Predicted class uses a 0.5 probability threshold by default. Adjust if a different operating point is required.
 
 Troubleshooting
 Pipeline is not fitted yet:
 
-Rebuild artifacts using the steps in “Reproducible Pipeline Build.”
+Rebuild using the steps in “Reproducible Pipeline Build.”
 
-If needed, run scripts/refit_final_pipeline.py to refit the entire pipeline on raw features, then restart the app.
+If needed, run a refit script (if provided) to retrain the full pipeline, then restart the app.
 
-Custom transformer not found (unpickling issues):
+Custom transformer not found (during unpickling):
 
-Ensure the ColumnSlicer class is defined at the top of ui/app.py before loading the pickle (or import it from a shared module that’s resolvable at runtime).
+Ensure any custom classes (e.g., ColumnSlicer) are importable or defined at the top of ui/app.py before loading the pickle.
 
 Caching issues:
 
-Stop the app and clear cache, then relaunch.
+Stop the app, clear cache, and relaunch.
 
 Methodology Overview
-Preprocessing: imputation (numeric/ categorical), scaling for numeric features, and one‑hot encoding with unknown‑category handling.
+Preprocessing: imputation (numeric/categorical), scaling numeric features, one‑hot encoding with unknown‑category handling.
 
 Feature selection: statistical/importance‑based selection with persisted indices for consistent inference.
 
-Model training and tuning: multiple classifiers evaluated; the best by AUC/ROC is selected and persisted.
+Model training and tuning: multiple classifiers evaluated; the best by AUC/ROC is persisted.
 
-Persistence: the final artifact is a scikit‑learn Pipeline containing preprocessing, selection, and the tuned classifier.
+Persistence: final artifact is a scikit‑learn Pipeline including preprocessing, selection, and the tuned classifier.
 
 Results
-The build step prints the chosen best model (e.g., RandomForest) and stores the final pipeline as models/final_model.pkl.
+The build step logs the chosen best model (e.g., RandomForest) and stores models/final_model.pkl.
 
-Consider adding results/evaluation_metrics.txt (accuracy, precision, recall, F1, AUC) and screenshots of the Streamlit UI for completeness.
+Consider adding results/evaluation_metrics.txt (accuracy, precision, recall, F1, AUC) and UI screenshots for completeness.
 
 Dataset
-UCI Heart Disease (Cleveland subset). Ensure compliance with the dataset’s usage terms. Include the CSV under data/ or document the acquisition process.
+UCI Heart Disease (Cleveland subset). Ensure compliance with dataset terms. Either include data/heart_disease.csv or document how it is obtained/generated.
 
 Roadmap (Optional)
-Add unit tests for data transformers and prediction interface.
+Unit tests for transformers and prediction interface.
 
 CI workflow to lint, test, and package the app.
 
-Optional cloud deployment (e.g., containerize and deploy to a free PaaS).
+Optional cloud deployment (containerization + free PaaS).
 
 License
 Educational use only. Add a formal license (e.g., MIT) if redistribution or reuse is expected.
@@ -101,48 +110,9 @@ Educational use only. Add a formal license (e.g., MIT) if redistribution or reus
 Acknowledgments
 UCI Machine Learning Repository (Heart Disease dataset).
 
-scikit‑learn and Streamlit communities for tooling and best practices.
+scikit‑learn and Streamlit communities.
 
 
-# Project’s heart disease dataset and loaders
-├── data/ 
-│ ├── heart_disease.csv # Optional; may be omitted to reduce repo size
-│ └── load_data.py # Script to download/load data if CSV omitted
-│
-├── notebooks/ # One script/notebook per step
-│ ├── 01_data_preprocessing.py (or .ipynb)
-│ ├── 02_pca_analysis.py (or .ipynb)
-│ ├── 03_feature_selection.py (or .ipynb)
-│ ├── 04_supervised_learning.py (or .ipynb)
-│ ├── 05_unsupervised_learning.py (or .ipynb)
-│ └── 06_hyperparameter_tuning.py (or .ipynb)
-│
-├── models/
-│ ├── build_final_pipeline.py
-│ ├── final_model.pkl # Fitted pipeline artifact
-│ └── tuned_*.joblib # Any tuned model artifacts
-│
-├── results/ # All plots and evaluation outputs
-│ ├── figures/
-│ │ ├── histograms/
-│ │ ├── heatmap/
-│ │ ├── boxplots/
-│ │ ├── pca_plots/
-│ │ ├── feature_selection/
-│ │ ├── roc_curves/
-│ │ └── confusion_matrices/
-│ ├── supervised_metrics.csv
-│ └── clustering_metrics.txt
-│
-├── ui/
-│ └── app.py # Streamlit interface
-│
-├── deployment/
-│ └── ngrok_setup.txt # Optional local sharing notes
-│
-├── scripts/ # Optional utilities (e.g., refit script)
-│ └── refit_final_pipeline.py
-│
-├── README.md
-├── requirements.txt
-└── .gitignore
+
+
+
